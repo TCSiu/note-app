@@ -61,7 +61,7 @@
 		<div class="sidebar-cta">
 			<div class="sidebar-cta-content">
 				<div class="d-grid">
-					<a href="" class="btn btn-primary">{{ __('Logout') }}</a>
+					<a href="{{ route('logout') }}" class="btn btn-primary">{{ __('Logout') }}</a>
 				</div>
 			</div>
 		</div>

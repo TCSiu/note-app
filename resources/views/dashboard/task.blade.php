@@ -9,10 +9,10 @@
 				<div class="card">
 					
 					<div class="card-header">
-						<h3 class="text-center">{{ __('Memo') }}</h3>
+						<h3 class="text-center">{{ __('Task') }}</h3>
 					</div>
 					<div class="col-12">
-
+						
                     </div>
 				</div>
 			</div>
