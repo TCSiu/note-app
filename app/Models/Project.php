@@ -6,13 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use App\Models\Task;
-use App\Traits\CreateUpdate;
-use App\Traits\Uuid;
+use App\Traits\BaseDetail;
 
 class Project extends Model
 {
     // use HasFactory, Uuid, CreateUpdate;
-    use HasFactory, Uuid;
+    use HasFactory, BaseDetail;
 
     protected $fillable = [
         'name',
