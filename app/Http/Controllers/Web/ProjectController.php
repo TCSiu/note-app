@@ -19,6 +19,12 @@ class ProjectController extends BaseController
         return $project;
     }
 
+    public function view(Request $request, int $id = 0){
+        $project = Project::find($id);
+        $tasks = $project->tasks;
+        return view('dashboard.project.view', compact('tasks'));
+    }
+
     public function test(Request $request, int $id = 0){
         $project = Project::find($id);
         $task = Task::create(['name' => 'test task', 'description' => 'test task']);

@@ -36,6 +36,7 @@ Route::group(['middleware' => 'auth'], function(){
 
     Route::group(['prefix' => 'project'], function(){
         Route::get('/create', [ProjectController::class, 'create'])->name('project.create');
+        Route::get('/view/{id}', [ProjectController::class, 'view'])->name('project.view');
         Route::get('/test/{id}', [ProjectController::class, 'test'])->name('project.test');
     });
 });
