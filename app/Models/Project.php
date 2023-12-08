@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use App\Models\Task;
+use App\Models\User;
 use App\Traits\BaseDetail;
 
 class Project extends Model
@@ -20,5 +21,9 @@ class Project extends Model
 
     public function tasks(){
         return $this->hasMany(Task::class, 'project_id', 'id');
+    }
+
+    public function users(){
+        return $this->belongsToMany(User::class, 'users_projects');
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ProjectController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,3 +21,14 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
+Route::post('/register', [AuthController::class, 'register'])->name('api.register');
+
+Route::group(['middleware' => 'auth:api'], function(){
+    Route::get('/test', [AuthController::class, 'test']);
+
+    Route::group(['prefix' => 'project'], function(){
+        Route::post('/create', [ProjectController::class, 'create']);
+        Route::post('/add-task', [ProjectController::class, 'addTask']);
+        Route::post('/assign', [ProjectController::class, 'assignProject']);
+    });
+});
