@@ -11,9 +11,13 @@ class GeneralSchema
 
     public static function generalFields(Blueprint $table = null){
         if($table == null) return false;
-
         $table->id();
-		$table->uuid('uuid');
+		$table->uuid('uuid')->unasigned()->index();
+		return $table;
+    }
+
+	public static function generalTimeStamp(Blueprint $table = null){
+		if($table == null) return false;
 		$table->timestamp('created_at')->nullable();
 		$table->integer('created_by')->nullable();
 		$table->timestamp('updated_at')->nullable();
@@ -21,5 +25,5 @@ class GeneralSchema
 		$table->boolean('is_active')->default(true);
 		$table->boolean('is_deleted')->default(false);
 		return $table;
-    }
+	}
 }

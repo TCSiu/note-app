@@ -16,7 +16,8 @@ return new class extends Migration
             GeneralSchema::generalFields($table);
             $table->string('name');
             $table->longText('description');
-            $table->integer('task_id');
+            $table->uuid('task_uuid');
+            GeneralSchema::generalTimeStamp($table);
         });
     }
 

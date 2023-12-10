@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\TaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,7 +29,19 @@ Route::group(['middleware' => 'auth:api'], function(){
 
     Route::group(['prefix' => 'project'], function(){
         Route::post('/create', [ProjectController::class, 'create']);
-        Route::post('/add-task', [ProjectController::class, 'addTask']);
         Route::post('/assign', [ProjectController::class, 'assignProject']);
+        Route::post('/deallocate', [ProjectController::class, 'deallocateProject']);
+        Route::get('/view/{project_id}', [ProjectController::class, 'view']);
+        Route::get('/edit/{project_id}', [ProjectController::class, 'edit']);
+        Route::post('/store/{project_id}', [ProjectController::class, 'store']);
+        Route::delete('/delete/{project_id}', [ProjectController::class, 'delete']);
+    });
+
+    Route::group(['prefix' => 'task'], function(){
+        Route::post('/create', [TaskController::class, 'create']);
+        Route::post('/edit/{task_id}', [TaskController::class, 'edit']);
+        Route::post('/assign', [TaskController::class, 'assign']);
+        Route::post('/deallocate', [TaskController::class, 'deallocate']);
+        Route::post('/change-status/{task_id}', [TaskController::class, 'changeStatus']);
     });
 });

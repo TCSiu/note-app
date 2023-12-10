@@ -16,7 +16,9 @@ return new class extends Migration
             GeneralSchema::generalFields($table);
             $table->string('name');
             $table->longText('description');
-            $table->integer('project_id')->nullable();
+            $table->uuid('project_uuid')->nullable();
+            $table->string('status');
+            GeneralSchema::generalTimeStamp($table);
         });
     }
 

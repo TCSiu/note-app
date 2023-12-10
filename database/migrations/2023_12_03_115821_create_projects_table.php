@@ -15,7 +15,9 @@ return new class extends Migration
         Schema::create('projects', function (Blueprint $table) {
             GeneralSchema::generalFields($table);
             $table->string('name');
-            $table->longText('description');
+            $table->longText('description')->nullable();
+            $table->boolean('status')->default(true);
+            GeneralSchema::generalTimeStamp($table);
         });
     }
 

@@ -14,8 +14,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users_projects', function (Blueprint $table) {
-            $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(Project::class)->constrained()->cascadeOnDelete();
+            $table->foreignUuid('user_uuid')->references('uuid')->on('users')->cascadeOnDelete();
+            $table->foreignUuid('project_uuid')->references('uuid')->on('projects')->cascadeOnDelete();
+            // $table->foreignIdFor(User::class, 'user_uuid')->references('uuid')->on('users')->cascadeOnDelete();
+            // $table->foreignIdFor(Project::class, 'project_uuid')->references('uuid')->on('projects')->cascadeOnDelete();
+            $table->string('permission');
             $table->boolean('status')->default(1);
         });
     }
