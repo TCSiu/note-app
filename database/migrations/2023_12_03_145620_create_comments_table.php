@@ -14,9 +14,8 @@ return new class extends Migration
     {
         Schema::create('comments', function (Blueprint $table) {
             GeneralSchema::generalFields($table);
-            $table->string('name');
             $table->longText('description');
-            $table->uuid('task_uuid');
+            $table->uuid('task_uuid')->nullable();
             GeneralSchema::generalTimeStamp($table);
         });
     }

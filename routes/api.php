@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\TaskController;
 use Illuminate\Http\Request;
@@ -43,5 +44,9 @@ Route::group(['middleware' => 'auth:api'], function(){
         Route::post('/assign', [TaskController::class, 'assign']);
         Route::post('/deallocate', [TaskController::class, 'deallocate']);
         Route::post('/change-status/{task_id}', [TaskController::class, 'changeStatus']);
+    });
+
+    Route::group(['prefix' => 'comment'], function(){
+        Route::post('/create', [CommentController::class, 'create']);
     });
 });

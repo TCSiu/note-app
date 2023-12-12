@@ -15,4 +15,8 @@ class Comment extends Model
         'name',
         'description',
     ];
+
+    public function tasks(){
+        return $this->belongsTo(Task::class, 'uuid', 'task_uuid');
+    }
 }

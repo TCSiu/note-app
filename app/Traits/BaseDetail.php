@@ -9,8 +9,8 @@ use Illuminate\Support\Str;
 
 trait BaseDetail
 {
-    public static function boot(){
-        parent::boot();
+    public static function bootBaseDetail(){
+        // parent::boot();
         self::creating(function ($model) {
             if (Schema::hasColumn($model->getTable(), 'uuid')) {
                 $model->uuid = (string) Str::uuid();
