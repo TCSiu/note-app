@@ -6,7 +6,7 @@ use App\Traits\BaseDetail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SystemLogs extends Model
+class SystemLog extends Model
 {
     use HasFactory, BaseDetail;
     protected $table = 'system_logs';

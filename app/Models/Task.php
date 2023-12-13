@@ -9,13 +9,14 @@ use Illuminate\Support\Str;
 use App\Models\Project;
 use App\Traits\BaseDetail;
 use App\Traits\CreateUpdate;
+use App\Traits\ModelLog;
 use App\Traits\Uuid;
 
 class Task extends Model
 {
     // use HasFactory, Uuid, CreateUpdate;
-    use HasFactory, BaseDetail;
-
+    use HasFactory, BaseDetail, ModelLog;
+    protected $tag_name = 'Task';
     protected $fillable = [
         'name',
         'description',
