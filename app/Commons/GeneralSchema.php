@@ -22,8 +22,8 @@ class GeneralSchema
 		$table->integer('created_by')->nullable();
 		$table->timestamp('updated_at')->nullable();
 		$table->integer('updated_by')->nullable();
-		$table->boolean('is_active')->default(true);
-		$table->boolean('is_deleted')->default(false);
+		$table->softDeletes();
+		$table->integer('deleted_by')->nullable();
 		return $table;
 	}
 }

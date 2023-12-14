@@ -5,16 +5,16 @@ namespace App\Models;
 use App\Enum\ProjectPermissionEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 use App\Models\Task;
 use App\Models\User;
 use App\Traits\BaseDetail;
 use App\Traits\ModelLog;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
 {
     // use HasFactory, Uuid, CreateUpdate;
-    use HasFactory, BaseDetail, ModelLog;
+    use HasFactory, BaseDetail, ModelLog, SoftDeletes;
     protected $tag_name = 'Project';
     protected $fillable = [
         'name',
@@ -38,21 +38,21 @@ class Project extends Model
         return $this->belongsToMany(User::class, 'users_projects', 'project_uuid', 'user_uuid', 'uuid', 'uuid')->where(['permission' => ProjectPermissionEnum::VIEWER]);
     }
 
-    public function assign(User $user, int $permission_id){
-        switch($permission_id){
-            case(0):
-                // $this->users()->attach($user->uuid, ['permission' => ProjectPermissionEnum::OWNER]);
-                $this->users()->attach($user->uuid, ['project_uuid' => $this->uuid, 'permission' => ProjectPermissionEnum::OWNER]);
-                break;
-            case(1):
-                // $this->users()->attach($user->uuid, ['permission' => ProjectPermissionEnum::EDITOR]);
-                $this->users()->attach($user->uuid, ['project_uuid' => $this->uuid, 'permission' => ProjectPermissionEnum::EDITOR]);
-                break;
-            case(2):
-                // $this->users()->attach($user->uuid, ['permission' => ProjectPermissionEnum::VIEWER]);
-                $this->users()->attach($user->uuid, ['project_uuid' => $this->uuid, 'permission' => ProjectPermissionEnum::VIEWER]);
-                break;
-        }
-        return $this;
-    }
+    // public function assign(User $user, int $permission_id){
+    //     switch($permission_id){
+    //         case(0):
+    //             // $this->users()->attach($user->uuid, ['permission' => ProjectPermissionEnum::OWNER]);
+    //             $this->users()->attach($user->uuid, ['project_uuid' => $this->uuid, 'permission' => ProjectPermissionEnum::OWNER]);
+    //             break;
+    //         case(1):
+    //             // $this->users()->attach($user->uuid, ['permission' => ProjectPermissionEnum::EDITOR]);
+    //             $this->users()->attach($user->uuid, ['project_uuid' => $this->uuid, 'permission' => ProjectPermissionEnum::EDITOR]);
+    //             break;
+    //         case(2):
+    //             // $this->users()->attach($user->uuid, ['permission' => ProjectPermissionEnum::VIEWER]);
+    //             $this->users()->attach($user->uuid, ['project_uuid' => $this->uuid, 'permission' => ProjectPermissionEnum::VIEWER]);
+    //             break;
+    //     }
+    //     return $this;
+    // }
 }

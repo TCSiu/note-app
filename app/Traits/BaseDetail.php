@@ -29,8 +29,8 @@ trait BaseDetail
         });
         static::deleting(function ($model) {
 			$model->timestamps = false;
-			if(Schema::hasColumn($model->getTable(), 'is_deleted')){
-				$model->is_deleted = 1;
+			if(Schema::hasColumn($model->getTable(), 'deleted_by')){
+				$model->deleted_by = Auth::id();
 			}
 			$model->save();
         });

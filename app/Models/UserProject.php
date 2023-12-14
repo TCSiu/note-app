@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserProject extends Model
 {
-    use HasFactory, ModelLog;
+    use HasFactory;
     protected $tag_name = 'Users Projects';
     protected $table = 'users_projects';
 

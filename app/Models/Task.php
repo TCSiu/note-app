@@ -11,11 +11,12 @@ use App\Traits\BaseDetail;
 use App\Traits\CreateUpdate;
 use App\Traits\ModelLog;
 use App\Traits\Uuid;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Task extends Model
 {
     // use HasFactory, Uuid, CreateUpdate;
-    use HasFactory, BaseDetail, ModelLog;
+    use HasFactory, BaseDetail, ModelLog, SoftDeletes;
     protected $tag_name = 'Task';
     protected $fillable = [
         'name',

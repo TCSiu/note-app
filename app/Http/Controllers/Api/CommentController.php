@@ -20,7 +20,7 @@ class CommentController extends BaseController
         }
         $validated = $validator->validated();
         try{
-            $task = Task::where(['id' => $validated['task_id'], 'is_deleted' => 0])->first();
+            $task = Task::where(['id' => $validated['task_id']])->first();
             if(!isset($task)){
                 return $this->sendError('Create Task Fail', ['Task is deleted']);
             }

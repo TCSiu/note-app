@@ -29,21 +29,25 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::get('/test', [AuthController::class, 'test']);
 
     Route::group(['prefix' => 'project'], function(){
-        Route::post('/create', [ProjectController::class, 'create']);
+        Route::get('/', [ProjectController::class, 'index']);
+        Route::post('/', [ProjectController::class, 'create']);
         Route::post('/assign', [ProjectController::class, 'assignProject']);
         Route::post('/deallocate', [ProjectController::class, 'deallocateProject']);
-        Route::get('/view/{project_id}', [ProjectController::class, 'view']);
-        Route::get('/edit/{project_id}', [ProjectController::class, 'edit']);
-        Route::post('/store/{project_id}', [ProjectController::class, 'store']);
-        Route::delete('/delete/{project_id}', [ProjectController::class, 'delete']);
+        Route::get('/{project_id}', [ProjectController::class, 'view']);
+        Route::get('/{project_id}/edit', [ProjectController::class, 'edit']);
+        Route::put('/{project_id}', [ProjectController::class, 'update']);
+        Route::delete('/{project_id}', [ProjectController::class, 'delete']);
+        // Route::get('')
     });
 
     Route::group(['prefix' => 'task'], function(){
-        Route::post('/create', [TaskController::class, 'create']);
-        Route::post('/edit/{task_id}', [TaskController::class, 'edit']);
+        Route::post('/', [TaskController::class, 'create']);
+        Route::get('/{task_id}', [TaskController::class, 'view']);
+        Route::get('/{task_id}/edit', [TaskController::class, 'edit']);
+        Route::put('/{task_id}', [TaskController::class, 'update']);
         Route::post('/assign', [TaskController::class, 'assign']);
         Route::post('/deallocate', [TaskController::class, 'deallocate']);
-        Route::post('/change-status/{task_id}', [TaskController::class, 'changeStatus']);
+        Route::post('/{task_id}/change-status', [TaskController::class, 'changeStatus']);
     });
 
     Route::group(['prefix' => 'comment'], function(){

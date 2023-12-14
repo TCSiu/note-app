@@ -26,9 +26,9 @@ class TaskController extends BaseController
         $validated = $validator->validated();
         $validated['status'] = TaskStatusEnum::WORKING;
         try{
-            $project = Project::where(['id' => $validated['project_id'], 'is_deleted' => 0, 'is_active' => 1])->first();
+            $project = Project::where(['id' => $validated['project_id']])->first();
             if(!isset($project)){
-                return $this->sendError('Create Task Fail', ['Project is deleted']);
+                return $this->sendError('Create Task Fail', ['Project is deleted or not exist']);
             }
             $task = Task::create($validated);
             $project->tasks()->save($task);
@@ -38,7 +38,32 @@ class TaskController extends BaseController
         }
     }
 
+    public function view(Request $requset, $task_id = -1){
+        $task = Project::where(['id' => $task_id])->first();
+        $user = Auth::guard('api')->user();
+        if(isset($task)){
+            if(!$task->users->contains($user)){
+                return $this->sendError('View Task Fail', ['User doesn\'t have permission to view this task']);
+            }
+            return $this->sendResponse($task, 'View Task Success');
+        }
+        return $this->sendError('Create Task Fail', ['Task is deleted']);
+    }
+
     public function edit(Request $request, $task_id = -1){
+        $task = Project::where(['id' => $task_id])->first();
+        $user = Auth::guard('api')->user();
+        $project = $task->projects;
+        if(!isset($project)){
+            return $this->sendError('Edit Project Fail', ['Project is deleted or not exist']);
+        }
+        if(!($project->owners->contains($user) || $project->editors->contains($user))){
+            return $this->sendError('Edit Project Fail', ['You have no permission to edit this project']);
+        }
+        return $this->sendResponse($project, 'Edit Project Success');
+    }
+
+    public function update(Request $request, $task_id = -1){
         $user = Auth::guard('api')->user();
         $validator = Validator::make($request->all(), [
             // 'project_id' => 'required|integer|exists:projects,id',
@@ -50,9 +75,9 @@ class TaskController extends BaseController
         }
         $validated = $validator->validated();
         try{
-            $task = Task::where(['id' => $task_id, 'is_deleted' => 0])->first();
+            $task = Task::where(['id' => $task_id])->first();
             if(!isset($task)){
-                return $this->sendError('Update Task Fail', ['Task is deleted']);
+                return $this->sendError('Update Task Fail', ['Task is deleted or not exist']);
             }
             $task->update($validated);
             return $this->sendResponse($task, 'Update Task Success');
@@ -61,9 +86,9 @@ class TaskController extends BaseController
         }
     }
 
-    public function assign(Request $request){
+    public function assign(Request $request, int $task_id = -1){
         $validator = Validator::make($request->all(), [
-            'task_id' => 'required|integer|exists:tasks,id',
+            // 'task_id' => 'required|integer|exists:tasks,id',
             'user_id' => 'required|integer|exists:users,id'
         ]);
         if($validator->fails()){
@@ -71,21 +96,22 @@ class TaskController extends BaseController
         }
         $validated = $validator->validated();
         try{
-            $task = Task::where(['id' => $validated['task_id'], 'is_deleted' => 0])->first();
-            $user = User::where(['id' => $validated['user_id'], 'is_deleted' => 0])->first();
+            // $task = Task::where(['id' => $validated['task_id']])->first();
+            $task = Task::where(['id' => $task_id])->first();
+            $user = User::where(['id' => $validated['user_id']])->first();
             $project = $task->projects;
             if(!isset($project)){
                 return $this->sendError('Assign Task Fail', ['Project doesn\'t exist']);
             }else{
-                if($project->is_deleted == 1){
+                if(isset($project->deleted_at)){
                     return $this->sendError('Assign Task Fail', ['Project is deleted']);
                 }
             }
             if(!isset($task)){
-                return $this->sendError('Assign Task Fail', ['Task is deleted']);
+                return $this->sendError('Assign Task Fail', ['Task is deleted or not exist']);
             }
             if(!isset($user)){
-                return $this->sendError('Assign Task Fail', ['User is deleted']);
+                return $this->sendError('Assign Task Fail', ['User is deleted or not exist']);
             }
             if(!($project->owners->contains($user) || $project->editors->contains($user))){
                 return $this->sendError('Assign Task Fail', ['You have no permission to assign the task']);
@@ -94,16 +120,16 @@ class TaskController extends BaseController
                 return $this->sendError('Assign Task Fail', ['Already assign to this user']);
             }
             $task->users()->attach($user);
-            $task = Task::where(['id' => $validated['task_id'], 'is_deleted' => 0])->first();
+            $task = Task::where(['id' => $task_id])->first();
             return $this->sendResponse($task, 'Assign Task Success');
         }catch(\Exception $e){
             return $this->sendError('Assign Task Fail', $e->getMessage());
         }
     }
 
-    public function deallocate(Request $request){
+    public function deallocate(Request $request, int $task_id = -1){
         $validator = Validator::make($request->all(), [
-            'task_id' => 'required|integer|exists:tasks,id',
+            // 'task_id' => 'required|integer|exists:tasks,id',
             'user_id' => 'required|integer|exists:users,id'
         ]);
         if($validator->fails()){
@@ -111,21 +137,22 @@ class TaskController extends BaseController
         }
         $validated = $validator->validated();
         try{
-            $task = Task::where(['id' => $validated['task_id'], 'is_deleted' => 0])->first();
-            $user = User::where(['id' => $validated['user_id'], 'is_deleted' => 0])->first();
+            // $task = Task::where(['id' => $validated['task_id']])->first();
+            $task = Task::where(['id' => $task_id])->first();
+            $user = User::where(['id' => $validated['user_id']])->first();
             $project = $task->projects;
             if(!isset($project)){
                 return $this->sendError('Deallocate Task Fail', ['Project doesn\'t exist']);
             }else{
-                if($project->is_deleted == 1){
-                    return $this->sendError('Deallocate Task Fail', ['Project is deleted']);
+                if(isset($project->deleted_at)){
+                    return $this->sendError('Deallocate Task Fail', ['Project is deleted or not exist']);
                 }
             }
             if(!isset($task)){
-                return $this->sendError('Deallocate Task Fail', ['Task is deleted']);
+                return $this->sendError('Deallocate Task Fail', ['Task is deleted or not exist']);
             }
             if(!isset($user)){
-                return $this->sendError('Deallocate Task Fail', ['User is deleted']);
+                return $this->sendError('Deallocate Task Fail', ['User is deleted or not exist']);
             }
             if(!($project->owners->contains($user) || $project->editors->contains($user))){
                 return $this->sendError('Deallocate Task Fail', ['You have no permission to assign the task']);
@@ -134,7 +161,7 @@ class TaskController extends BaseController
                 return $this->sendError('Deallocate Task Fail', ['Already deallocate to this user']);
             }
             $task->users()->detach($user);
-            $task = Task::where(['id' => $validated['task_id'], 'is_deleted' => 0])->first();
+            $task = Task::where(['id' => $task_id])->first();
             return $this->sendResponse($task, 'Deallocate Task Success');
         }catch(\Exception $e){
             return $this->sendError('Deallocate Task Fail', $e->getMessage());
@@ -150,9 +177,9 @@ class TaskController extends BaseController
             return $this->sendError('Create Task Fail', $validator->errors());
         }
         $validated = $validator->validated();
-        $task = Task::where(['id' => $task_id, 'is_deleted' => 0])->first();
+        $task = Task::where(['id' => $task_id])->first();
         if(!isset($task)){
-            return $this->sendError('Deallocate Task Fail', ['Task is deleted']);
+            return $this->sendError('Deallocate Task Fail', ['Task is deleted or not exist']);
         }
         $status = TaskStatusEnum::tryFrom($validated['status']);
         if(!isset($status)){
@@ -161,5 +188,20 @@ class TaskController extends BaseController
         $task->status = $status;
         $task->save();
         return $this->sendResponse($task, 'Change task status success');
+    }
+
+    public function delete(Request $request, int $task_id = -1){
+        $user = Auth::guard('api')->user();
+        $task = Project::where(['id' => $task_id])->first();
+        $project = $task->projects;
+        if(!isset($task)){
+            return $this->sendError('Delete Task Fail', ['Task is deleted or not exist']);
+        }
+        if(!$project->owners->contains($user) && !$project->editors->contains($user)){
+            return $this->sendError('Delete Task Fail', ['You have no permission']);
+        }
+        $task->delete();
+        $task->save();
+        return $this->sendResponse($task, 'Delete Task Success');
     }
 }

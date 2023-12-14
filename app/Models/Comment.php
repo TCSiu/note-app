@@ -6,11 +6,12 @@ use App\Traits\BaseDetail;
 use App\Traits\ModelLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Comment extends Model
 {
     // use HasFactory, Uuid, CreateUpdate;
-    use HasFactory, BaseDetail, ModelLog;
+    use HasFactory, BaseDetail, ModelLog, SoftDeletes;
 
     protected $tag_name = 'Comment';
     protected $fillable = [

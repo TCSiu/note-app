@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserTask extends Model
 {
-    use HasFactory, ModelLog;
+    use HasFactory;
 
     protected $tag_name = 'Users Tasks';
     protected $table = 'users_tasks';
