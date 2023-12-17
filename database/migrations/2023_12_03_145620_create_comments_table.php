@@ -16,6 +16,7 @@ return new class extends Migration
             GeneralSchema::generalFields($table);
             $table->longText('description');
             $table->uuid('task_uuid')->nullable();
+            $table->uuid('user_uuid')->nullable();
             GeneralSchema::generalTimeStamp($table);
         });
     }

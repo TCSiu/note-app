@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Task;
 use App\Models\User;
 use App\Traits\BaseDetail;
+use App\Traits\DeleteRestore;
 use App\Traits\ModelLog;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
 {
     // use HasFactory, Uuid, CreateUpdate;
-    use HasFactory, BaseDetail, ModelLog, SoftDeletes;
+    use HasFactory, BaseDetail, SoftDeletes, DeleteRestore;
     protected $tag_name = 'Project';
     protected $fillable = [
         'name',

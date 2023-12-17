@@ -1,39 +1,14 @@
 <?php
 
-namespace App\Traits;
+namespace App\Commons;
 
-use App\Models\SystemLog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use App\Models\SystemLog;
+use Illuminate\Support\Facades\Log;
 
-trait ModelLog{
-    public static function bootModelLog(){
-        static::saved(function(Model $model){
-            Log::info($model);
-            if($model->wasRecentlyCreated){
-                static::storeLog($model, static::class, 'CREATED');
-            }else{
-                if (!$model->getChanges()) {
-                    return;
-                }
-                if($model->wasChanged('deleted_at') ||$model->wasChanged('deleted_by')){
-                    return;
-                }
-                static::storeLog($model, static::class, 'UPDATED');
-            }
-        });
-        static::deleted(function (Model $model) {
-            static::storeLog($model, static::class, 'DELETED');
-        });
-
-        static::restored(function (Model $model){
-            static::storeLog($model, static::class, 'RESTORE');
-        });
-    }
-
+class SystemLogFunction{
     public static function getTagName(Model $model){
         return !empty($model->tagName) ? $model->tagName : Str::title(Str::snake(class_basename($model), ''));
     }
@@ -59,9 +34,12 @@ trait ModelLog{
         }elseif($action === 'UPDATED'){
             $newValues = $model->getChanges();
         }
-        if($action === 'DELETED' || $action === 'RESTORE'){
+        if ($action !== 'CREATED') {
             $oldValues = $model->getOriginal();
         }
+        // if($action === 'DELETED' || $action === 'RESTORE'){
+        //     $oldValues = $model->getOriginal();
+        // }
         $systemLog = new SystemLog();
         $systemLog->system_logable_id = $model->id;
         $systemLog->system_logable_type = $model_path;

@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use App\Traits\BaseDetail;
+use App\Traits\DeleteRestore;
 use App\Traits\ModelLog;
 use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -18,7 +19,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable, BaseDetail, ModelLog, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, BaseDetail, SoftDeletes, DeleteRestore;
 
     protected $tag_name = 'User';
     /**
@@ -58,6 +59,10 @@ class User extends Authenticatable implements JWTSubject
 
     public function projects(){
         return $this->belongsToMany(Project::class, 'users_projects', 'user_uuid', 'project_uuid', 'uuid', 'uuid');
+    }
+
+    public function comments(){
+        return $this->hasMany(Comment::class, 'user_uuid', 'uuid');
     }
 
     /**

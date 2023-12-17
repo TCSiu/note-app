@@ -32,4 +32,8 @@ class BaseController extends Controller
     {
         return $this->sendError('Unauthorised!', ['error' => 'Unauthorised!'], 403);
     }
+
+    public function notFound(){
+        return $this->sendError('Record Not Found', ['error' => 'Record not found'], 404);
+    }
 }

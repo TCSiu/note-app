@@ -4,14 +4,16 @@ namespace App\Traits;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 trait BaseDetail
 {
     public static function bootBaseDetail(){
         // parent::boot();
-        self::creating(function ($model) {
+        self::creating(function (Model $model) {
             if (Schema::hasColumn($model->getTable(), 'uuid')) {
                 $model->uuid = (string) Str::uuid();
             }
@@ -22,17 +24,11 @@ trait BaseDetail
                 $model->updated_by = Auth::id();
             }
         });
-        self::updating(function ($model) {
+
+        self::updating(function (Model $model) {
             if (Schema::hasColumn($model->getTable(), 'updated_by')) {
                 $model->updated_by = Auth::id();
             }
-        });
-        static::deleting(function ($model) {
-			$model->timestamps = false;
-			if(Schema::hasColumn($model->getTable(), 'deleted_by')){
-				$model->deleted_by = Auth::id();
-			}
-			$model->save();
-        });
+        });        
     }
 }

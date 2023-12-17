@@ -31,13 +31,13 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::group(['prefix' => 'project'], function(){
         Route::get('/', [ProjectController::class, 'index']);
         Route::post('/', [ProjectController::class, 'create']);
-        Route::post('/assign', [ProjectController::class, 'assignProject']);
-        Route::post('/deallocate', [ProjectController::class, 'deallocateProject']);
+        Route::post('/{project_id}/assign', [ProjectController::class, 'assign']);
+        Route::post('/{project_id}/deallocate', [ProjectController::class, 'deallocate']);
         Route::get('/{project_id}', [ProjectController::class, 'view']);
         Route::get('/{project_id}/edit', [ProjectController::class, 'edit']);
         Route::put('/{project_id}', [ProjectController::class, 'update']);
         Route::delete('/{project_id}', [ProjectController::class, 'delete']);
-        // Route::get('')
+        Route::get('/{project_id}/restore', [ProjectController::class, 'restore']);
     });
 
     Route::group(['prefix' => 'task'], function(){
@@ -45,12 +45,14 @@ Route::group(['middleware' => 'auth:api'], function(){
         Route::get('/{task_id}', [TaskController::class, 'view']);
         Route::get('/{task_id}/edit', [TaskController::class, 'edit']);
         Route::put('/{task_id}', [TaskController::class, 'update']);
-        Route::post('/assign', [TaskController::class, 'assign']);
-        Route::post('/deallocate', [TaskController::class, 'deallocate']);
+        Route::post('/{task_id}/assign', [TaskController::class, 'assign']);
+        Route::post('/{task_id}/deallocate', [TaskController::class, 'deallocate']);
         Route::post('/{task_id}/change-status', [TaskController::class, 'changeStatus']);
     });
 
     Route::group(['prefix' => 'comment'], function(){
         Route::post('/create', [CommentController::class, 'create']);
+        Route::put('/{comment_id}', [CommentController::class, 'update']);
+        Route::delete('/{comment_id}', [CommentController::class, 'delete']);
     });
 });
