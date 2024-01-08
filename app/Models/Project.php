@@ -22,6 +22,10 @@ class Project extends Model
         'description',
     ];
 
+    public function creator(){
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
     public function tasks(){
         return $this->hasMany(Task::class, 'project_uuid', 'uuid');
     }

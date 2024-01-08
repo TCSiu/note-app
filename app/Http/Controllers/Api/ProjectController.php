@@ -16,7 +16,8 @@ class ProjectController extends BaseController
 {
     public function index(Request $request){
         $user = Auth::guard('api')->user();
-        return $this->sendResponse($user->projects, 'Get All the Projects');
+        $projects = $user->projects;
+        return $this->sendResponse($projects, 'Get All the Projects');
     }
     public function assign(Request $request, int $project_id = -1){
         $validator = Validator::make($request->all(), [
@@ -203,11 +204,30 @@ class ProjectController extends BaseController
             $project->restore();
             $project->refresh();
             DB::commit();
-            return $this->sendResponse($project, 'Restore Deleted Project Succress');
+            return $this->sendResponse($project, 'Restore Deleted Project Success');
         }catch(\Exception $e){
             DB::rollBack();
             return $this->sendError('Fail', $e->getMessage());
         }
+    }
 
+    public function tasks(Request $request, int $project_id = -1){
+        $project = Project::where(['id'=> $project_id])->first();
+        $user = Auth::guard('api')->user();
+        $data = [];
+        if(!isset($project)){
+            return $this->notFound();
+        }
+        $tasks = $project->tasks;
+        $assign = $tasks->filter(function(Task $task, int $key) use($user){
+            return $task->users->contains($user);
+        });
+        $unAssign = $tasks->filter(function(Task $task, int $key) use($user){
+            return !$task->users->contains($user);
+        });
+        $data['assign'] = $assign;
+        $data['unAssign'] = $unAssign->values();
+        // dd($data);
+        return $this->sendResponse($data, 'Get Project Task Success');
     }
 }

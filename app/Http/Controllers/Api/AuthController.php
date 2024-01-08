@@ -42,7 +42,8 @@ class AuthController extends BaseController
             return $this->sendError('Login Fail', $validator->errors());
         }
         $validated = $validator->validated();
-        $user = User::create($validated);
+        $user_create = User::create($validated);
+        $user = User::find($user_create->id);
 
         $token = Auth::guard('api')->attempt($validated);
 
