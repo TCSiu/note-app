@@ -44,7 +44,7 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::group(['prefix' => 'task'], function(){
         Route::post('/', [TaskController::class, 'create']);
         Route::get('/{task_id}', [TaskController::class, 'view']);
-        Route::get('/{task_id}/edit', [TaskController::class, 'edit']);
+        // Route::get('/{task_id}/edit', [TaskController::class, 'edit']);
         Route::put('/{task_id}', [TaskController::class, 'update']);
         Route::post('/{task_id}/assign', [TaskController::class, 'assign']);
         Route::post('/{task_id}/deallocate', [TaskController::class, 'deallocate']);

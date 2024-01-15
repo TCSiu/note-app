@@ -43,21 +43,10 @@ class Project extends Model
         return $this->belongsToMany(User::class, 'users_projects', 'project_uuid', 'user_uuid', 'uuid', 'uuid')->where(['permission' => ProjectPermissionEnum::VIEWER]);
     }
 
-    // public function assign(User $user, int $permission_id){
-    //     switch($permission_id){
-    //         case(0):
-    //             // $this->users()->attach($user->uuid, ['permission' => ProjectPermissionEnum::OWNER]);
-    //             $this->users()->attach($user->uuid, ['project_uuid' => $this->uuid, 'permission' => ProjectPermissionEnum::OWNER]);
-    //             break;
-    //         case(1):
-    //             // $this->users()->attach($user->uuid, ['permission' => ProjectPermissionEnum::EDITOR]);
-    //             $this->users()->attach($user->uuid, ['project_uuid' => $this->uuid, 'permission' => ProjectPermissionEnum::EDITOR]);
-    //             break;
-    //         case(2):
-    //             // $this->users()->attach($user->uuid, ['permission' => ProjectPermissionEnum::VIEWER]);
-    //             $this->users()->attach($user->uuid, ['project_uuid' => $this->uuid, 'permission' => ProjectPermissionEnum::VIEWER]);
-    //             break;
-    //     }
-    //     return $this;
-    // }
+    public function canEdit(User $user){
+        if($this->owners->contains($user) || $this->editors->contains($user)){
+            return true;
+        }
+        return false;
+    }
 }

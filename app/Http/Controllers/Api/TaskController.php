@@ -35,7 +35,8 @@ class TaskController extends BaseController
             $task = Task::create($validated);
             $project->tasks()->save($task);
             DB::commit();
-            return $this->sendResponse($project->tasks, 'Create Task Success');
+            $task->refresh();
+            return $this->sendResponse($task, 'Create Task Success');
         }catch(\Exception $e){
             DB::rollBack();
             return $this->sendError('Create Task Fail', $e->getMessage());
@@ -43,29 +44,29 @@ class TaskController extends BaseController
     }
 
     public function view(Request $requset, $task_id = -1){
-        $task = Project::where(['id' => $task_id])->first();
+        $task = Task::where(['id' => $task_id])->first();
         $user = Auth::guard('api')->user();
         if(isset($task)){
-            if(!$task->users->contains($user)){
-                return $this->sendError('View Task Fail', ['User doesn\'t have permission to view this task']);
-            }
+            // if(!$task->users->contains($user)){
+            //     return $this->sendError('View Task Fail', ['User doesn\'t have permission to view this task']);
+            // }
             return $this->sendResponse($task, 'View Task Success');
         }
-        return $this->sendError('Create Task Fail', ['Task is deleted']);
+        return $this->sendError('View Task Fail', ['Task is deleted']);
     }
 
-    public function edit(Request $request, $task_id = -1){
-        $task = Project::where(['id' => $task_id])->first();
-        $user = Auth::guard('api')->user();
-        $project = $task->projects;
-        if(!isset($project)){
-            return $this->sendError('Edit Project Fail', ['Project is deleted or not exist']);
-        }
-        if(!($project->owners->contains($user) || $project->editors->contains($user))){
-            return $this->sendError('Edit Project Fail', ['You have no permission to edit this project']);
-        }
-        return $this->sendResponse($project, 'Edit Project Success');
-    }
+    // public function edit(Request $request, $task_id = -1){
+    //     $task = Project::where(['id' => $task_id])->first();
+    //     $user = Auth::guard('api')->user();
+    //     $project = $task->projects;
+    //     if(!isset($project)){
+    //         return $this->sendError('Edit Project Fail', ['Project is deleted or not exist']);
+    //     }
+    //     if(!($project->owners->contains($user) || $project->editors->contains($user))){
+    //         return $this->sendError('Edit Project Fail', ['You have no permission to edit this project']);
+    //     }
+    //     return $this->sendResponse($project, 'Edit Project Success');
+    // }
 
     public function update(Request $request, $task_id = -1){
         $user = Auth::guard('api')->user();

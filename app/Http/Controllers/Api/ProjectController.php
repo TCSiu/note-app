@@ -227,7 +227,7 @@ class ProjectController extends BaseController
         });
         $data['assign'] = $assign;
         $data['unAssign'] = $unAssign->values();
-        // dd($data);
+        $data['canEdit'] = $project->canEdit($user);
         return $this->sendResponse($data, 'Get Project Task Success');
     }
 }
