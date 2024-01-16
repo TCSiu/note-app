@@ -39,6 +39,7 @@ Route::group(['middleware' => 'auth:api'], function(){
         Route::delete('/{project_id}', [ProjectController::class, 'delete']);
         Route::get('/{project_id}/restore', [ProjectController::class, 'restore']);
         Route::get('/{project_id}/tasks', [ProjectController::class, 'tasks']);
+        Route::get('/{project_id}/suggestedUser', [ProjectController::class, 'suggestedUser']);
     });
 
     Route::group(['prefix' => 'task'], function(){

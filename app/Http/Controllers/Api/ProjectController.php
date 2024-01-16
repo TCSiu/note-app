@@ -235,4 +235,14 @@ class ProjectController extends BaseController
         // dd($data);
         return $this->sendResponse($data, 'Get Project Task Success');
     }
+
+    public function suggestedUser(Request $request, int $project_id){
+        $project = Project::where(['id' => $project_id])->first();
+        $user = Auth::guard('api')->user();
+        $user_list = [];
+
+        $all_projects = $user->projects;
+        $user_list = $all_projects->pluck('users')->toArray();
+        dd($user_list);
+    }
 }
