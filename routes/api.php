@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\ImageController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\TaskController;
 use Illuminate\Http\Request;
@@ -56,5 +57,9 @@ Route::group(['middleware' => 'auth:api'], function(){
         Route::post('/create', [CommentController::class, 'create']);
         Route::put('/{comment_id}', [CommentController::class, 'update']);
         Route::delete('/{comment_id}', [CommentController::class, 'delete']);
+    });
+
+    Route::group(['prefix' => 'image'], function(){
+        Route::post('/upload', [ImageController::class, 'upload']);
     });
 });
