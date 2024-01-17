@@ -242,7 +242,15 @@ class ProjectController extends BaseController
         $user_list = [];
 
         $all_projects = $user->projects;
-        $user_list = $all_projects->pluck('users')->toArray();
-        dd($user_list);
+        $user_list = $all_projects->pluck('users')->flatten()->unique('uuid')->reject(function (User $value, $key) use ($user) {
+            return $value->uuid == $user->uuid;
+        })->toArray();
+        
+        return $this->sendResponse($user_list, 'Get Suggested User List Success');
+    }
+
+    public function getUserList(Request $request, int $project_id){
+        $project = Project::where(['id' => $project_id])->first();
+        return $this->sendRepsonse($project->users, 'Get Project User List Success');
     }
 }
