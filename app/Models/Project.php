@@ -22,6 +22,8 @@ class Project extends Model
         'description',
     ];
 
+    protected $hidden = ['pivot'];
+
     public function creator(){
         return $this->belongsTo(User::class, 'created_by');
     }
@@ -31,7 +33,7 @@ class Project extends Model
     }
 
     public function users(){
-        return $this->belongsToMany(User::class, 'users_projects', 'project_uuid', 'user_uuid', 'uuid', 'uuid');
+        return $this->belongsToMany(User::class, 'users_projects', 'project_uuid', 'user_uuid', 'uuid', 'uuid')->withPivot('permission');
     }
     public function owners(){
         return $this->belongsToMany(User::class, 'users_projects', 'project_uuid', 'user_uuid', 'uuid', 'uuid')->where(['permission' => ProjectPermissionEnum::OWNER]);
