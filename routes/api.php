@@ -28,6 +28,7 @@ Route::post('/register', [AuthController::class, 'register'])->name('api.registe
 
 Route::group(['middleware' => 'auth:api'], function(){
     Route::get('/test', [AuthController::class, 'test']);
+    Route::post('/user-validate', [AuthController::class, 'validateUser']);
 
     Route::group(['prefix' => 'project'], function(){
         Route::get('/', [ProjectController::class, 'index']);
@@ -40,7 +41,7 @@ Route::group(['middleware' => 'auth:api'], function(){
         Route::delete('/{project_id}', [ProjectController::class, 'delete']);
         Route::get('/{project_id}/restore', [ProjectController::class, 'restore']);
         Route::get('/{project_id}/tasks', [ProjectController::class, 'tasks']);
-        Route::get('/{project_id}/suggestedUser', [ProjectController::class, 'suggestedUser']);
+        Route::get('/{project_id}/suggest-user', [ProjectController::class, 'getSuggestUser']);
     });
 
     Route::group(['prefix' => 'task'], function(){

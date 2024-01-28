@@ -236,15 +236,20 @@ class ProjectController extends BaseController
         return $this->sendResponse($data, 'Get Project Task Success');
     }
 
-    public function suggestedUser(Request $request, int $project_id){
+    public function getSuggestUser(Request $request, int $project_id){
         $project = Project::where(['id' => $project_id])->first();
         $user = Auth::guard('api')->user();
+
+        $current_user = $project->users;
         $user_list = [];
 
         $all_projects = $user->projects;
-        $user_list = $all_projects->pluck('users')->flatten()->unique('uuid')->reject(function (User $value, $key) use ($user) {
+        $user_list = $all_projects->pluck('users')->flatten()->unique('uuid')->reject(function (User $value, $key) use ($user, $current_user) {
             return $value->uuid == $user->uuid;
-        })->toArray();
+            // return $current_user->contains($value) || $value->uuid == $user->uuid;
+        })->values()->toArray();
+
+        $user_list = User::all();
         
         return $this->sendResponse($user_list, 'Get Suggested User List Success');
     }

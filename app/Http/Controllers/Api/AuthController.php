@@ -60,4 +60,16 @@ class AuthController extends BaseController
     public function test(){
         return $this->sendResponse(['test'], 'test');
     }
+
+    public function validateUser(Request $request){
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email',
+        ]);
+        if($validator->fails()){
+            return $this->sendError('Email doesn\'t exist', $validator->errors());
+        }
+        $validated = $validator->validated();
+        $user = User::where(['email' => $validated['email']])->first();
+        return $this->sendResponse($user, 'Email exist');
+    }
 }
