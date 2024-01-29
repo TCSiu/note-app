@@ -258,4 +258,82 @@ class ProjectController extends BaseController
         $project = Project::where(['id' => $project_id])->first();
         return $this->sendRepsonse($project->users, 'Get Project User List Success');
     }
+
+    public function assign_new(Request $request, int $project_id = -1){
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|array',
+            'email.*' => 'required|email|distinct|exists:users,email',
+        ]);
+        if($validator->fails()){
+            return $this->sendError('Fail to assign project', $validator->errors());
+        }
+        $validated = $validator->validated();
+
+        $error_messages = [];
+        $project = Project::where(['id' => $project_id])->first();
+
+        if(!isset($project)){
+            return $this->notFound();
+        }
+
+        $permission = ProjectPermissionEnum::tryFrom('admin');
+
+        DB::beginTransaction();
+        try{
+            $hasUpdate = false;
+            foreach($validated['email'] as $email){
+                $user = User::where(['email' => $email])->first();
+                if(!$user){
+                    $error_messages[] = "$email doesn't exists or already deleted";
+                }else{
+                    if($project->users->contains($user)){
+                        $error_messages[] = "$email already in the assigned";
+                    }else{
+                        $hasUpdate = true;
+                        $project->users()->attach($user->uuid, ['project_uuid' => $project->uuid, 'permission' => $permission]);
+                    }
+                }
+            }
+            $project->refresh();
+            DB::commit();
+            if(!$hasUpdate){
+                if(empty($error_messages)){
+                    return $this->sendResponse($project->users, 'No New Allocation');
+                }else{
+                    return $this->sendError('Assign Task Fail', $error_messages);
+                }
+            }
+            $data['users'] = $project->users;
+            $data['errors'] = $error_messages;
+            return $this->sendResponse($data, empty($error_messages) ? 'Assign Project Success' : 'Assign Project Partially Success');
+        }catch(\Exception $e){
+            DB::rollBack();
+            return $this->sendError('Assign Project Fail', $e->getMessage());
+        }
+
+
+        // if(!isset($project)){
+        //     return $this->notFound();
+        // }
+        // if($project->users->contains($user)){
+        //     return $this->sendError('Assign Project Fail', ['Already assign to this user']);
+        // }
+        // $permission = ProjectPermissionEnum::tryFrom($validated['permission']);
+        // if(!isset($permission)){
+        //     return $this->sendError('Assign Project Fail', 'Unknown project permission');
+        // }
+        // DB::beginTransaction();
+        // try{
+        //     // $project = Project::where(['id' => $validated['project_id']])->first();
+        //     $project->users()->attach($user->uuid, ['project_uuid' => $project->uuid, 'permission' => $permission]);
+        //     $project->refresh();
+        //     DB::commit();
+        //     // $project = $project->assign($user, $validated['permission']);
+        //     // $project = Project::where(['id' => $validated['project_id']])->first();
+        //     return $this->sendResponse($project->users, 'Assign Project Success');
+        // }catch(\Exception $e){
+        //     DB::rollBack();
+        //     return $this->sendError('Create Task Fail', $e->getMessage());
+        // }
+    }
 }

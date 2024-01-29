@@ -34,6 +34,7 @@ Route::group(['middleware' => 'auth:api'], function(){
         Route::get('/', [ProjectController::class, 'index']);
         Route::post('/', [ProjectController::class, 'create']);
         Route::post('/{project_id}/assign', [ProjectController::class, 'assign']);
+        Route::post('/{project_id}/assign-new', [ProjectController::class, 'assign_new']);
         Route::post('/{project_id}/deallocate', [ProjectController::class, 'deallocate']);
         Route::get('/{project_id}', [ProjectController::class, 'view']);
         Route::get('/{project_id}/edit', [ProjectController::class, 'edit']);
