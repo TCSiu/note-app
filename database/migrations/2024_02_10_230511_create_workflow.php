@@ -12,13 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('projects', function (Blueprint $table) {
+        Schema::create('workflows', function (Blueprint $table) {
             GeneralSchema::generalFields($table);
-            $table->string('name');
-            $table->longText('description')->nullable();
-            $table->boolean('status')->default(true);
-            $table->uuid('workflow_uuid')->default(1);
-            $table->string('workflow')->nullable();
+            $table->string('workflow');
             GeneralSchema::generalTimeStamp($table);
         });
     }
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('projects');
+        Schema::dropIfExists('workflows');
     }
 };

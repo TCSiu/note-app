@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\ImageController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\WorkflowController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,7 @@ Route::post('/register', [AuthController::class, 'register'])->name('api.registe
 Route::group(['middleware' => 'auth:api'], function(){
     Route::get('/test', [AuthController::class, 'test']);
     Route::post('/user-validate', [AuthController::class, 'validateUser']);
+    Route::get('/suggest-workflow', [WorkflowController::class, 'getSuggestedWorkflow']);
 
     Route::group(['prefix' => 'project'], function(){
         Route::get('/', [ProjectController::class, 'index']);
