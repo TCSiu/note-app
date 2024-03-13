@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ProjectController extends BaseController
 {
@@ -168,7 +169,9 @@ class ProjectController extends BaseController
 
     public function update(Request $request, $project_id = -1){
         $user = Auth::guard('api')->user();
-        $validator = Validator::make($request->all(), [
+        $modified = $request->all();
+        $modified['workflow'] = json_decode($modified['workflow'], true);
+        $validator = Validator::make($modified, [
             'name' => 'nullable|string',
             'description' => 'nullable|string',
             'workflow' => 'nullable|array',
@@ -204,13 +207,13 @@ class ProjectController extends BaseController
                 });
                 $validated['workflow'] = $workflow_list;
             } else {
-                $validated['workflow'] = $validated_workflow;
+                $validated['workflow'] = json_encode($validated['workflow']);
             }
         }
 
         try{
             $project->update($validated);
-            if($workflow_change && isset($workflow_template)){
+            if(isset($workflow_change) && $workflow_change && isset($workflow_template)){
                 $project->workflowTemplate()->associate($workflow_template)->save();
             }
             DB::commit();

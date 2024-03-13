@@ -13,7 +13,7 @@ class WorkflowController extends BaseController
         $user = Auth::guard('api')->user();
         $projects = $user->projects;
         $default_workflow = Workflow::find(1);
-        $related_workflow = $projects->pluck('workflowTemplate')->sortBy('id');
+        $related_workflow = $projects->pluck('workflowTemplate')->unique()->sortBy('id');
         if(!$related_workflow->contains($default_workflow)){
             $related_workflow->prepend($default_workflow);
         }

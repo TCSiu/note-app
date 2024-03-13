@@ -66,7 +66,7 @@ class Project extends Model
         return $permission_list->contains($user);
     }
 
-    public function canEdit(User $user){
+    public function canEdit(User | null $user){
         if($this->owners->contains($user) || $this->editors->contains($user)){
             return true;
         }

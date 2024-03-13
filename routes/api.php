@@ -26,6 +26,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::post('/login', [AuthController::class, 'login'])->name('api.login');
 Route::post('/register', [AuthController::class, 'register'])->name('api.register');
+Route::get('/token-refresh', [AuthController::class, 'getRefreshToken']);
+Route::get('/token-check', [AuthController::class, 'checkToken']);
 
 Route::group(['middleware' => 'auth:api'], function(){
     Route::get('/test', [AuthController::class, 'test']);

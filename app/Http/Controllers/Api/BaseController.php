@@ -30,7 +30,7 @@ class BaseController extends Controller
 
     public function unauthorized()
     {
-        return $this->sendError('Unauthorised!', ['error' => 'Unauthorised!'], 403);
+        return $this->sendError('Unauthorised!', ['error' => 'Unauthorised!'], 401);
     }
 
     public function notFound(){
