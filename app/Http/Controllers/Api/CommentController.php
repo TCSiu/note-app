@@ -53,7 +53,7 @@ class CommentController extends BaseController
             return $this->notFound();
         }
         if(!$user->comments->contains($comment)){
-            return $this->sendError('Update Comment Fail', ['You aren\'t the owner of this comment']);
+            return $this->sendError('Update Comment Fail', ['error' => 'You aren\'t the owner of this comment']);
         }
         $validated = $validator->validated();
         DB::beginTransaction();
@@ -72,7 +72,7 @@ class CommentController extends BaseController
         $comment = Comment::where(['id' =>  $comment_id])->first();
         $task = $comment->tasks;
         if(!$user->comments->contains($comment) || !$task->projects->owners->contains($user)){
-            return $this->sendError('Update Comment Fail', ['You aren\'t the owner of this comment']);
+            return $this->sendError('Update Comment Fail', ['error' => 'You aren\'t the owner of this comment']);
         }
         DB::beginTransaction();
         try{

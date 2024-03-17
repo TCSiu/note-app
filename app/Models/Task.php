@@ -18,7 +18,7 @@ class Task extends Model
     protected $fillable = [
         'name',
         'description',
-        'status',
+        'workflow_uuid',
     ];
 
     protected $casts = [

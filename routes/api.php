@@ -32,21 +32,22 @@ Route::get('/token-check', [AuthController::class, 'checkToken']);
 Route::group(['middleware' => 'auth:api'], function(){
     Route::get('/test', [AuthController::class, 'test']);
     Route::post('/user-validate', [AuthController::class, 'validateUser']);
-    Route::get('/suggest-workflow', [WorkflowController::class, 'getSuggestedWorkflow']);
+    Route::get('/recommend-workflow', [WorkflowController::class, 'getSuggestedWorkflow']);
 
     Route::group(['prefix' => 'project'], function(){
         Route::get('/', [ProjectController::class, 'index']);
         Route::post('/', [ProjectController::class, 'create']);
-        Route::post('/{project_id}/assign', [ProjectController::class, 'assign']);
-        Route::post('/{project_id}/assign-new', [ProjectController::class, 'assign_new']);
-        Route::post('/{project_id}/deallocate', [ProjectController::class, 'deallocate']);
+        Route::put('/{project_id}/allocation', [ProjectController::class, 'assign']);
+        // Route::post('/{project_id}/assign-new', [ProjectController::class, 'assign_new']);
+        Route::post('/{project_id}/deallocation', [ProjectController::class, 'deallocate']);
         Route::get('/{project_id}', [ProjectController::class, 'view']);
         Route::get('/{project_id}/edit', [ProjectController::class, 'edit']);
         Route::put('/{project_id}', [ProjectController::class, 'update']);
         Route::delete('/{project_id}', [ProjectController::class, 'delete']);
-        Route::get('/{project_id}/restore', [ProjectController::class, 'restore']);
+        Route::get('/{project_id}/restoration', [ProjectController::class, 'restore']);
         Route::get('/{project_id}/tasks', [ProjectController::class, 'tasks']);
-        Route::get('/{project_id}/suggest-user', [ProjectController::class, 'getSuggestUser']);
+        Route::get('/{project_id}/recommend-user', [ProjectController::class, 'getSuggestUser']);
+        Route::delete('/{project_id}/workflow', [ProjectController::class, 'deleteWorkflow']);
     });
 
     Route::group(['prefix' => 'task'], function(){
@@ -54,8 +55,8 @@ Route::group(['middleware' => 'auth:api'], function(){
         Route::get('/{task_id}', [TaskController::class, 'view']);
         // Route::get('/{task_id}/edit', [TaskController::class, 'edit']);
         Route::put('/{task_id}', [TaskController::class, 'update']);
-        Route::post('/{task_id}/assign', [TaskController::class, 'assign']);
-        Route::post('/{task_id}/deallocate', [TaskController::class, 'deallocate']);
+        Route::post('/{task_id}/allocation', [TaskController::class, 'assign']);
+        Route::post('/{task_id}/deallocation', [TaskController::class, 'deallocate']);
         Route::post('/{task_id}/change-status', [TaskController::class, 'changeStatus']);
     });
 

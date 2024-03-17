@@ -36,7 +36,7 @@ class ProjectController extends BaseController
 
         $permission = ProjectPermissionEnum::tryFrom(strtolower($validated['permission']));
         if(!isset($permission)){
-            return $this->sendError('Assign Project Fail', ['Unknown project permission']);
+            return $this->sendError('Assign Project Fail', ['error' => 'Unknown project permission']);
         }
 
         $project = Project::where(['id' => $project_id])->first();
@@ -52,7 +52,7 @@ class ProjectController extends BaseController
         }
 
         if($project->permission_check($permission, $user)){
-            return $this->sendError('Assign Project Fail', ['Already assign to this user']);
+            return $this->sendError('Assign Project Fail', ['error' => 'Already assign to this user']);
         }
         
         DB::beginTransaction();
@@ -82,10 +82,10 @@ class ProjectController extends BaseController
             return $this->notFound();
         }
         if($project->owners->contains($user)){
-            return $this->sendError('Deallocate Project Fail', 'Can\'t deallocate owner');
+            return $this->sendError('Deallocate Project Fail', ['error' => 'Can\'t deallocate owner']);
         }
         if(!$project->users->contains($user)){
-            return $this->sendError('Deallocate Project Fail', 'Already deallocate to this user');
+            return $this->sendError('Deallocate Project Fail', ['error' => 'Already deallocate to this user']);
         }
         DB::beginTransaction();
         try{
@@ -108,7 +108,7 @@ class ProjectController extends BaseController
             return $this->notFound();
         }
         if(!$project->users->contains($user)){
-            return $this->sendError('View Project Fail', ['User doesn\'t have permission to view this project']);
+            return $this->sendError('View Project Fail', ['error' => 'User doesn\'t have permission to view this project']);
         }
         return $this->sendResponse($project, 'View Project Success');
     }
@@ -120,7 +120,7 @@ class ProjectController extends BaseController
             return $this->notFound();
         }
         if(!$project->canEdit($user)){
-            return $this->sendError('Edit Project Fail', ['You have no permission to edit this project']);
+            return $this->sendError('Edit Project Fail', ['error' => 'You have no permission to edit this project']);
         }
         $project = $project->makeHidden(['owners']);
         return $this->sendResponse($project, 'Edit Project Success');
@@ -184,7 +184,7 @@ class ProjectController extends BaseController
         $project = Project::where(['id' => $project_id])->with('workflowTemplate')->first();
         if(isset($project)){
             if(!($project->owners->contains($user) || $project->editors->contains($user))){
-                return $this->sendError('Edit Project Fail', ['You have no permission to edit this project']);
+                return $this->sendError('Edit Project Fail', ['error' => 'You have no permission to edit this project']);
             }
         }else{
             return $this->notFound();
@@ -233,7 +233,7 @@ class ProjectController extends BaseController
             return $this->notFound();
         }
         if(!$project->users->contains($user)){
-            return $this->sendError('Delete Project Fail', ['You have no permission']);
+            return $this->sendError('Delete Project Fail', ['error' => 'You have no permission']);
         }
         DB::beginTransaction();
         try{
@@ -254,10 +254,10 @@ class ProjectController extends BaseController
             return $this->notFound();
         }
         if(date('Y-m-d', strtotime('+1 month')) < date('Y-m-d')){
-            return $this->sendError('Restore Deleted Project Fail', ['Project has been deleted after 1 month']);
+            return $this->sendError('Restore Deleted Project Fail', ['error' => 'Project has been deleted after 1 month']);
         }
         if(!$project->owners->contains($user)){
-            return $this->sendError('Restore Deleted Project Fail', ['You have no permission']);
+            return $this->sendError('Restore Deleted Project Fail', ['error' => 'You have no permission']);
         }
         DB::beginTransaction();
         try{
@@ -275,7 +275,7 @@ class ProjectController extends BaseController
         $project = Project::where(['id'=> $project_id])->first();
         $user = Auth::guard('api')->user();
         $data = [];
-        if(!isset($project)){
+        if(isset($project)){
             return $this->notFound();
         }
         $tasks = $project->tasks;
@@ -285,8 +285,8 @@ class ProjectController extends BaseController
         $unAssign = $tasks->filter(function(Task $task, int $key) use($user){
             return !$task->users->contains($user);
         });
-        $data['assign'] = $assign;
-        $data['unAssign'] = $unAssign->values();
+        $data['assigned'] = $assign;
+        $data['notAssign'] = $unAssign->values();
         $data['canEdit'] = $project->canEdit($user);
         return $this->sendResponse($data, 'Get Project Task Success');
     }
@@ -312,6 +312,38 @@ class ProjectController extends BaseController
     public function getUserList(Request $request, int $project_id){
         $project = Project::where(['id' => $project_id])->first();
         return $this->sendRepsonse($project->users, 'Get Project User List Success');
+    }
+
+    public function deleteWorkflow(Request $request, int $project_id) {
+        $project = Project::where(['id' => $project_id])->with('tasks')->first();
+        $validator = Validator::make($request->all(), [
+            'delete' => 'required|uuid',
+            'move' => 'required|uuid',
+        ]);
+        $validated = $validator->validated();
+        $workflow = json_decode($project->workflow, true);
+        $workflow_keys = array_keys($workflow);
+        if (!in_array($validated['delete'], $workflow_keys)) {
+            return $this->sendError('Delete Project Workflow Fail', ['error' => 'Please select an existing project workflow to delete'], 400);    
+        }
+        if (!in_array($validated['move'], $workflow_keys)) {
+            return $this->sendError('Create Task Fail', ['error' => 'Please select an existing project workflow to move'], 400);    
+        }
+        $workflow_name = $workflow[$validated['delete']];
+        $tasks = Task::where(['workflow_uuid' => $validated['delete']])->get();
+        DB::beginTransaction();
+        try {
+            foreach($tasks as $task) {
+                $task['workflow_uuid'] = $validated['move'];
+                $task->save();
+            }
+            DB::commit();
+            $project->refresh();
+            return $this->sendResponse($project, "Remove $workflow_name Success");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->sendError('Assign Project Fail', $e->getMessage());
+        }
     }
 
     public function assign_new(Request $request, int $project_id = -1){
