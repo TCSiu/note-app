@@ -110,7 +110,9 @@ class ProjectController extends BaseController
         if(!$project->users->contains($user)){
             return $this->sendError('View Project Fail', ['error' => 'User doesn\'t have permission to view this project']);
         }
-        return $this->sendResponse($project, 'View Project Success');
+        $data = $project->toArray();
+        $data['canEdit'] = $project->canEdit($user);
+        return $this->sendResponse($data, 'View Project Success');
     }
 
     public function edit(Request $request, $project_id = -1){
@@ -275,19 +277,18 @@ class ProjectController extends BaseController
         $project = Project::where(['id'=> $project_id])->first();
         $user = Auth::guard('api')->user();
         $data = [];
-        if(isset($project)){
+        if(!isset($project)){
             return $this->notFound();
         }
         $tasks = $project->tasks;
-        $assign = $tasks->filter(function(Task $task, int $key) use($user){
-            return $task->users->contains($user);
-        });
-        $unAssign = $tasks->filter(function(Task $task, int $key) use($user){
-            return !$task->users->contains($user);
-        });
-        $data['assigned'] = $assign;
-        $data['notAssign'] = $unAssign->values();
-        $data['canEdit'] = $project->canEdit($user);
+        $workflow = json_decode($project->workflow, true);
+
+        foreach($workflow as $key => $value) {
+            $data[$value] = $tasks->filter(function(Task $task) use ($key) {
+                return $task->workflow_uuid == $key;
+            });
+        }
+        // $data['canEdit'] = $project->canEdit($user);
         return $this->sendResponse($data, 'Get Project Task Success');
     }
 
