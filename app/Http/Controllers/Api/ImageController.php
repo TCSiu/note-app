@@ -12,10 +12,13 @@ class ImageController extends BaseController
         $validator = Validator::make($request->all(), [
             'image' => 'required|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
         ]);
-        if($validator->fails()){
+        if($validator->fails()) {
             return $this->sendError('Fail to upload image', $validator->errors());
         }
         $image_file = $request->file('image')->store('image', 'public');
+
+        
+
         return $this->sendResponse($image_file, 'Upload Success');
     }
 }

@@ -14,7 +14,9 @@ return new class extends Migration
     {
         Schema::create('images', function (Blueprint $table) {
             GeneralSchema::generalFields($table);
+            $table->string('filename');
             $table->string('image_path');
+            $table->enum('status', ['public', 'deleted']);
             GeneralSchema::generalTimeStamp($table);
         });
     }
