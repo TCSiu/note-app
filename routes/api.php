@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
-use App\Http\Controllers\Api\ImageController;
+use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\TaskController;
 use Illuminate\Http\Request;
@@ -60,6 +60,6 @@ Route::group(['middleware' => 'auth:api'], function(){
     });
 
     Route::group(['prefix' => 'image'], function(){
-        Route::post('/upload', [ImageController::class, 'upload']);
+        Route::post('/upload', [FileController::class, 'upload']);
     });
 });

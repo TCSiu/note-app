@@ -8,11 +8,18 @@ use App\Traits\BaseDetail;
 use App\Traits\DeleteRestore;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Image extends Model
+class File extends Model
 {
     use HasFactory, BaseDetail, SoftDeletes, DeleteRestore;
 
     protected $fillable = [
-        'imagePath',
+        'filename',
+        'path',
+        'size',
+        'status',
+        'usage',
+        'usage_uuid',
     ];
+
+
 }
