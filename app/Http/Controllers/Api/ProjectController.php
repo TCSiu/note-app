@@ -276,18 +276,26 @@ class ProjectController extends BaseController
     public function tasks(Request $request, int $project_id = -1){
         $project = Project::where(['id'=> $project_id])->first();
         $user = Auth::guard('api')->user();
+        $workflow_uuid = $request->workflow_uuid;
         $data = [];
         if(!isset($project)){
             return $this->notFound();
         }
-        $tasks = $project->tasks;
         $workflow = json_decode($project->workflow, true);
-
-        foreach($workflow as $key => $value) {
-            $data[$value] = $tasks->filter(function(Task $task) use ($key) {
-                return $task->workflow_uuid == $key;
-            });
+        if(isset($workflow_uuid) && !in_array($workflow_uuid, array_keys($workflow))) {
+            return $this->sendError('Get Project Tasks Fail', ['error' => 'Task uuid doesn\'t exist in the project']);
         }
+        $target_workflow = isset($workflow_uuid) ? $workflow_uuid : array_keys($workflow)[0];
+        $tasks = $project->tasks;
+
+        $data[$workflow[$target_workflow]] = $tasks->filter(function(Task $task) use ($target_workflow) {
+            return $task->workflow_uuid == $target_workflow;
+        });
+        // foreach($workflow as $key => $value) {
+        //     $data[$value] = $tasks->filter(function(Task $task) use ($key) {
+        //         return $task->workflow_uuid == $key;
+        //     });
+        // }
         // $data['canEdit'] = $project->canEdit($user);
         return $this->sendResponse($data, 'Get Project Task Success');
     }
