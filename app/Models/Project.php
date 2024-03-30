@@ -30,7 +30,7 @@ class Project extends Model
     }
 
     public function tasks(){
-        return $this->hasMany(Task::class, 'project_uuid', 'uuid');
+        return $this->hasMany(Task::class, 'project_uuid', 'uuid')->with('creator');
     }
 
     public function users(){

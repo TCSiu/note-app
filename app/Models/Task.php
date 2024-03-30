@@ -36,4 +36,8 @@ class Task extends Model
     public function comments(){
         return $this->hasMany(Comment::class, 'task_uuid', 'uuid');
     }
+
+    public function creator(){
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

@@ -288,16 +288,10 @@ class ProjectController extends BaseController
         $target_workflow = isset($workflow_uuid) ? $workflow_uuid : array_keys($workflow)[0];
         $tasks = $project->tasks;
 
-        $data[$workflow[$target_workflow]] = $tasks->filter(function(Task $task) use ($target_workflow) {
+        $data = $tasks->filter(function(Task $task) use ($target_workflow) {
             return $task->workflow_uuid == $target_workflow;
-        });
-        // foreach($workflow as $key => $value) {
-        //     $data[$value] = $tasks->filter(function(Task $task) use ($key) {
-        //         return $task->workflow_uuid == $key;
-        //     });
-        // }
-        // $data['canEdit'] = $project->canEdit($user);
-        return $this->sendResponse($data, 'Get Project Task Success');
+        })->toArray();
+        return $this->sendResponse(array_values($data), 'Get Project Task Success');
     }
 
     public function getSuggestUser(Request $request, int $project_id){
@@ -309,7 +303,6 @@ class ProjectController extends BaseController
 
         $all_projects = $user->projects;
         $user_list = $all_projects->pluck('users')->flatten()->unique('uuid')->reject(function (User $value, $key) use ($user, $current_users) {
-            // return $value->uuid == $user->uuid;
             return $current_users->contains($value) || $value->uuid == $user->uuid;
         })->values()->map(function (User $value, $key) {
             return $value->makeHidden(['pivot']);
