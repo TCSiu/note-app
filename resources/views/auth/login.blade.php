@@ -4,7 +4,7 @@
 <div class="col-sm-10 col-md-8 col-lg-6 col-xl-5 mx-auto d-table h-100">
     <div class="d-table-cell align-middle">
         <div class="text-center mt-4">
-            <div class="h2">Welcome Back!</div>
+            <div class="h2">Welcome Back! {{ Request::ip() }}</div>
             <p class="lead">Sign in to your account to continue</p>
         </div>
         <div class="card">

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->longText('description');
             $table->uuid('project_uuid')->nullable();
-            $table->string('status');
+            $table->string('workflow_uuid');
             GeneralSchema::generalTimeStamp($table);
         });
     }

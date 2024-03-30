@@ -8,18 +8,17 @@ use App\Traits\BaseDetail;
 use App\Traits\DeleteRestore;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class File extends Model
+class Workflow extends Model
 {
     use HasFactory, BaseDetail, SoftDeletes, DeleteRestore;
 
+    protected $tag_name = 'Workflow';
+
     protected $fillable = [
-        'filename',
-        'path',
-        'size',
-        'status',
-        'usage',
-        'usage_uuid',
+        'workflow',
     ];
 
-
+    public function projects(){
+        return $this->hasMany(Project::class, 'workflow_uuid', 'uuid');
+    }
 }

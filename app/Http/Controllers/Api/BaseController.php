@@ -16,7 +16,7 @@ class BaseController extends Controller
         return response()->json($response, 200);
     }
 
-    public function sendError($error, $errorMsg = [], $code = 404)
+    public function sendError($error, $errorMsg = [], $code = 400)
     {
         $response = [
             'success'   => false,
@@ -30,7 +30,7 @@ class BaseController extends Controller
 
     public function unauthorized()
     {
-        return $this->sendError('Unauthorised!', ['error' => 'Unauthorised!'], 403);
+        return $this->sendError('Unauthorised!', ['error' => 'Unauthorised!'], 401);
     }
 
     public function notFound(){

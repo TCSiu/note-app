@@ -5,13 +5,9 @@ namespace App\Models;
 use App\Enum\TaskStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 use App\Models\Project;
 use App\Traits\BaseDetail;
-use App\Traits\CreateUpdate;
 use App\Traits\DeleteRestore;
-use App\Traits\ModelLog;
-use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Task extends Model
@@ -22,7 +18,7 @@ class Task extends Model
     protected $fillable = [
         'name',
         'description',
-        'status',
+        'workflow_uuid',
     ];
 
     protected $casts = [
@@ -39,5 +35,9 @@ class Task extends Model
 
     public function comments(){
         return $this->hasMany(Comment::class, 'task_uuid', 'uuid');
+    }
+
+    public function creator(){
+        return $this->belongsTo(User::class, 'created_by');
     }
 }
