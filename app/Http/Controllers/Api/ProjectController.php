@@ -220,14 +220,17 @@ class ProjectController extends BaseController
         $project = Project::where(['id'=> $project_id])->first();
         $user = Auth::guard('api')->user();
         $data = [];
-        if(!isset($project)){
+        if(!isset($project)) {
             return $this->notFound();
         }
+        if(!isset($user)) {
+            return $this->unauthorized();
+        }
         $tasks = $project->tasks;
-        $assign = $tasks->filter(function(Task $task, int $key) use($user){
+        $assign = $tasks->filter(function(Task $task, int $key) use($user) {
             return $task->users->contains($user);
         });
-        $unAssign = $tasks->filter(function(Task $task, int $key) use($user){
+        $unAssign = $tasks->filter(function(Task $task, int $key) use($user) {
             return !$task->users->contains($user);
         });
         $data['assign'] = $assign;

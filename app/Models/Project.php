@@ -43,7 +43,7 @@ class Project extends Model
         return $this->belongsToMany(User::class, 'users_projects', 'project_uuid', 'user_uuid', 'uuid', 'uuid')->where(['permission' => ProjectPermissionEnum::VIEWER]);
     }
 
-    public function canEdit(User $user){
+    public function canEdit($user){
         if($this->owners->contains($user) || $this->editors->contains($user)){
             return true;
         }
