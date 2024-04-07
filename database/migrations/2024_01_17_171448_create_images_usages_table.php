@@ -14,7 +14,11 @@ return new class extends Migration
     {
         Schema::create('images_usages', function (Blueprint $table) {
             GeneralSchema::generalFields($table);
-            $table->uuid('image_uuid')->nullable();
+            $table->string('filename');
+            $table->string('path');
+            $table->double('size');
+            $table->string('type');
+            $table->enum('status', ['public', 'deleted'])->default('public');
             $table->string('usage')->nullable();
             $table->uuid('usage_uuid')->nullable();
             GeneralSchema::generalTimeStamp($table);

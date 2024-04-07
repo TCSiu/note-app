@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Traits\BaseDetail;
 use App\Traits\DeleteRestore;
 use App\Traits\ModelLog;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
@@ -30,7 +31,7 @@ class Project extends Model
     }
 
     public function tasks(){
-        return $this->hasMany(Task::class, 'project_uuid', 'uuid')->with('creator');
+        return $this->hasMany(Task::class, 'project_uuid', 'uuid')->with('creator')->with('attachments');
     }
 
     public function users(){
@@ -48,6 +49,10 @@ class Project extends Model
 
     public function workflowTemplate(){
         return $this->belongsTo(Workflow::class, 'workflow_uuid', 'uuid');
+    }
+
+    public function attachments(): HasMany {
+        return $this->hasMany(File::class, 'usage_uuid', 'uuid');
     }
 
     public function permission_check(ProjectPermissionEnum $permission, User $user){

@@ -48,7 +48,7 @@ class TaskController extends BaseController
     }
 
     public function view(Request $requset, $task_id = -1){
-        $task = Task::where(['id' => $task_id])->first();
+        $task = Task::where(['id' => $task_id])->with('attachments')->first();
         $user = Auth::guard('api')->user();
         if(isset($task)){
             // if(!$task->users->contains($user)){

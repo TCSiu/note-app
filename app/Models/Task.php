@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Project;
 use App\Traits\BaseDetail;
 use App\Traits\DeleteRestore;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Task extends Model
@@ -39,5 +40,9 @@ class Task extends Model
 
     public function creator(){
         return $this->belongsTo(User::class, 'created_by');
+    }
+    
+    public function attachments(): HasMany {
+        return $this->hasMany(File::class, 'usage_uuid', 'uuid');
     }
 }
