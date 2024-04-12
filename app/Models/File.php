@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Image extends Model
+class File extends Model
 {
     use HasFactory, BaseDetail, SoftDeletes, DeleteRestore;
 
@@ -18,17 +18,9 @@ class Image extends Model
         'filename',
         'path',
         'size',
-        'type',
         'status',
         'usage',
         'usage_uuid',
     ];
 
-    // protected $hidden = [
-    //     'path',
-    // ];
-
-    public function file_usage(): HasOne {
-        return $this->hasOne($this->usage, 'uuid', 'usage_uuid');
-    }
 }

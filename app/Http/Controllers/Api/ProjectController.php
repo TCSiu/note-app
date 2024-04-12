@@ -278,7 +278,7 @@ class ProjectController extends BaseController
         $user = Auth::guard('api')->user();
         $workflow_uuid = $request->workflow_uuid;
         $data = [];
-        if(!isset($project)){
+        if(!isset($project)) {
             return $this->notFound();
         }
         $workflow = json_decode($project->workflow, true);

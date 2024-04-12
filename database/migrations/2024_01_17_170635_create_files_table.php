@@ -12,9 +12,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('images', function (Blueprint $table) {
+        Schema::create('files', function (Blueprint $table) {
             GeneralSchema::generalFields($table);
-            $table->string('image_path');
+            $table->string('filename');
+            $table->string('path');
+            $table->double('size');
+            $table->enum('status', ['public', 'deleted'])->default('public');
+            $table->string('usage')->nullable();
+            $table->uuid('usage_uuid')->nullable();
             GeneralSchema::generalTimeStamp($table);
         });
     }
@@ -24,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('images');
+        Schema::dropIfExists('files');
     }
 };
