@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Commons\CommonFunction;
 use App\Enum\ProjectPermissionEnum;
 use App\Http\Controllers\Api\BaseController;
+use App\Http\Requests\GetUserListRequest;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
@@ -311,9 +312,10 @@ class ProjectController extends BaseController
         return $this->sendResponse($user_list, 'Get Suggested User List Success');
     }
 
-    public function getUserList(Request $request, int $project_id){
-        $project = Project::where(['id' => $project_id])->first();
-        return $this->sendRepsonse($project->users, 'Get Project User List Success');
+    public function getUserList(GetUserListRequest $request){
+        // $project = Project::where(['id' => $project_id])->first();
+        // return $this->sendRepsonse($project->users, 'Get Project User List Success');
+        return $request->handle();
     }
 
     public function deleteWorkflow(Request $request, int $project_id) {
@@ -332,6 +334,7 @@ class ProjectController extends BaseController
             return $this->sendError('Create Task Fail', ['error' => 'Please select an existing project workflow to move'], 400);    
         }
         $workflow_name = $workflow[$validated['delete']];
+        unset($workflow[$validated['delete']]);
         $tasks = Task::where(['workflow_uuid' => $validated['delete']])->get();
         DB::beginTransaction();
         try {
@@ -339,9 +342,11 @@ class ProjectController extends BaseController
                 $task['workflow_uuid'] = $validated['move'];
                 $task->save();
             }
+            $project->workflow = $workflow;
+            $project->save();
             DB::commit();
             $project->refresh();
-            return $this->sendResponse($project, "Remove $workflow_name Success");
+            return $this->sendResponse($project, "Remove \"$workflow_name\" Success");
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->sendError('Assign Project Fail', $e->getMessage());
