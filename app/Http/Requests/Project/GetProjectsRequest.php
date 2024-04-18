@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Project;
 
-use App\Models\Project;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\BaseRequest;
+use Illuminate\Support\Facades\Auth;
 
-class GetUserListRequest extends FormRequest
+class GetProjectsRequest extends BaseRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,7 +28,8 @@ class GetUserListRequest extends FormRequest
     }
 
     public function handle() {
-        $project = Project::where(['id' => $this->route('project_id')])->first();
-        return $project->users;
+        $user = Auth::guard('api')->user();
+        $projects = $user->projects;
+        return $this->sendResponse($projects, 'Get All the Projects');
     }
 }

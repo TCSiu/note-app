@@ -5,7 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Commons\CommonFunction;
 use App\Enum\ProjectPermissionEnum;
 use App\Http\Controllers\Api\BaseController;
-use App\Http\Requests\GetUserListRequest;
+use App\Http\Requests\Project\AllocateProjectRequest;
+use App\Http\Requests\Project\DeallocateProjectRequest;
+use App\Http\Requests\Project\GetProjectsRequest;
+use App\Http\Requests\Project\GetSuggestUserRequest;
+use App\Http\Requests\Project\GetTasksRequest;
+use App\Http\Requests\Project\GetUserListRequest;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
@@ -19,87 +24,15 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ProjectController extends BaseController
 {
-    public function index(Request $request){
-        $user = Auth::guard('api')->user();
-        $projects = $user->projects;
-        return $this->sendResponse($projects, 'Get All the Projects');
+    public function projects(GetProjectsRequest $request){
+        return $request->handle();
     }
-    public function assign(Request $request, int $project_id = -1){
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required_without:email|integer|exists:users,id',
-            'email' => 'required_without:user_id|email|exists:users,email',
-            'permission' => 'required|string',
-        ]);
-        if($validator->fails()){
-            return $this->sendError('Fail to assign project', $validator->errors());
-        }
-        $validated = $validator->validated();
-
-        $permission = ProjectPermissionEnum::tryFrom(strtolower($validated['permission']));
-        if(!isset($permission)){
-            return $this->sendError('Assign Project Fail', ['error' => 'Unknown project permission']);
-        }
-
-        $project = Project::where(['id' => $project_id])->first();
-
-        if(isset($validated['user_id'])){
-            $user = User::where(['id' => $validated['user_id']])->first();
-        } else if(isset($validated['email'])){
-            $user = User::where(['email' => $validated['email']])->first();
-        }
-
-        if(!isset($project)){
-            return $this->notFound();
-        }
-
-        if($project->permission_check($permission, $user)){
-            return $this->sendError('Assign Project Fail', ['error' => 'Already assign to this user']);
-        }
-        
-        DB::beginTransaction();
-        try{
-            $project->users()->detach($user);
-            $project->users()->attach($user->uuid, ['project_uuid' => $project->uuid, 'permission' => $permission]);
-            $project->refresh();
-            DB::commit();
-            return $this->sendResponse($project->users, 'Assign Project Success');
-        }catch(\Exception $e){
-            DB::rollBack();
-            return $this->sendError('Create Task Fail', $e->getMessage());
-        }
+    public function assign(AllocateProjectRequest $request){
+        return $request->handle();
     }
 
-    public function deallocate(Request $request, int $project_id = -1){
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|integer|exists:users,id',
-        ]);
-        if($validator->fails()){
-            return $this->sendError('Fail to deallocate project', $validator->errors());
-        }
-        $validated = $validator->validated();
-        $project = Project::where(['id' => $project_id])->first();
-        $user = User::where(['id' => $validated['user_id']])->first();
-        if(!isset($project)){
-            return $this->notFound();
-        }
-        if($project->owners->contains($user)){
-            return $this->sendError('Deallocate Project Fail', ['error' => 'Can\'t deallocate owner']);
-        }
-        if(!$project->users->contains($user)){
-            return $this->sendError('Deallocate Project Fail', ['error' => 'Already deallocate to this user']);
-        }
-        DB::beginTransaction();
-        try{
-            // $project = Project::where(['id' => $validated['project_id']])->first();
-            $project->users()->detach($user);
-            $project->refresh();
-            DB::commit();
-            // $project = Project::where(['id' => $validated['project_id']])->first();
-            return $this->sendResponse($project->users, 'Deallocate Project Success');
-        }catch(\Exception $e){
-            DB::rollBack();
-            return $this->sendError('Create Task Fail', $e->getMessage());
-        }
+    public function deallocate(DeallocateProjectRequest $request){
+        return $request->handle();
     }
 
     public function view(Request $requset, $project_id = -1){
@@ -274,47 +207,15 @@ class ProjectController extends BaseController
         }
     }
 
-    public function tasks(Request $request, int $project_id = -1){
-        $project = Project::where(['id'=> $project_id])->first();
-        $user = Auth::guard('api')->user();
-        $workflow_uuid = $request->workflow_uuid;
-        $data = [];
-        if(!isset($project)) {
-            return $this->notFound();
-        }
-        $workflow = json_decode($project->workflow, true);
-        if(isset($workflow_uuid) && !in_array($workflow_uuid, array_keys($workflow))) {
-            return $this->sendError('Get Project Tasks Fail', ['error' => 'Task uuid doesn\'t exist in the project']);
-        }
-        $target_workflow = isset($workflow_uuid) ? $workflow_uuid : array_keys($workflow)[0];
-        $tasks = $project->tasks;
-
-        $data = $tasks->filter(function(Task $task) use ($target_workflow) {
-            return $task->workflow_uuid == $target_workflow;
-        })->toArray();
-        return $this->sendResponse(array_values($data), 'Get Project Task Success');
+    public function tasks(GetTasksRequest $request){
+        return $request->handle();
     }
 
-    public function getSuggestUser(Request $request, int $project_id){
-        $project = Project::where(['id' => $project_id])->first();
-        $user = Auth::guard('api')->user();
-
-        $current_users = $project->users;
-        $user_list = [];
-
-        $all_projects = $user->projects;
-        $user_list = $all_projects->pluck('users')->flatten()->unique('uuid')->reject(function (User $value, $key) use ($user, $current_users) {
-            return $current_users->contains($value) || $value->uuid == $user->uuid;
-        })->values()->map(function (User $value, $key) {
-            return $value->makeHidden(['pivot']);
-        })->toArray();
-        
-        return $this->sendResponse($user_list, 'Get Suggested User List Success');
+    public function getSuggestUser(GetSuggestUserRequest $request){
+        return $request->handle();
     }
 
     public function getUserList(GetUserListRequest $request){
-        // $project = Project::where(['id' => $project_id])->first();
-        // return $this->sendRepsonse($project->users, 'Get Project User List Success');
         return $request->handle();
     }
 

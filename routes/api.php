@@ -42,18 +42,18 @@ Route::group(['middleware' => 'auth:api'], function(){
     Route::get('/recommend-workflow', [WorkflowController::class, 'getSuggestedWorkflow']);
 
     Route::group(['prefix' => 'project'], function(){
-        Route::get('/', [ProjectController::class, 'index']);
+        Route::get('/', [ProjectController::class, 'projects']);
         Route::post('/', [ProjectController::class, 'create']);
-        Route::put('/{project_id}/allocation', [ProjectController::class, 'assign']);
+        Route::put('/{project_uuid}/allocation', [ProjectController::class, 'assign']);
         // Route::post('/{project_id}/assign-new', [ProjectController::class, 'assign_new']);
-        Route::post('/{project_id}/deallocation', [ProjectController::class, 'deallocate']);
+        Route::put('/{project_uuid}/deallocation', [ProjectController::class, 'deallocate']);
         Route::get('/{project_id}', [ProjectController::class, 'view']);
         Route::get('/{project_id}/edit', [ProjectController::class, 'edit']);
         Route::put('/{project_id}', [ProjectController::class, 'update']);
         Route::delete('/{project_id}', [ProjectController::class, 'delete']);
         Route::get('/{project_id}/restoration', [ProjectController::class, 'restore']);
-        Route::get('/{project_id}/tasks', [ProjectController::class, 'tasks']);
-        Route::get('/{project_id}/recommend-user', [ProjectController::class, 'getSuggestUser']);
+        Route::get('/{project_uuid}/tasks', [ProjectController::class, 'tasks']);
+        Route::get('/{project_uuid}/recommend-user', [ProjectController::class, 'getSuggestUser']);
         Route::delete('/{project_id}/workflow', [ProjectController::class, 'deleteWorkflow']);
     });
 
