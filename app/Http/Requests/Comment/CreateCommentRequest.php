@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Requests\Project;
+namespace App\Http\Requests\Comment;
 
 use App\Http\Requests\BaseRequest;
-use App\Models\Project;
-use App\Models\User;
+use App\Models\Comment;
+use App\Models\Task;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class DeallocateProjectRequest extends BaseRequest
+class CreateCommentRequest extends BaseRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,29 +28,26 @@ class DeallocateProjectRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'user_uuid' => 'required|integer|exists:users,uuid',
+            'task_id' => 'required|integer|exists:tasks,id',
+            'description' => 'required|string',
         ];
     }
 
     public function handle() {
+        $user = Auth::guard('api')->user();
         $validated = $this->validated();
-        $project = Project::where(['uuid' => $this->route('project_uuid')])->first();
-        $user = User::where(['uuid' => $validated['user_uuid']])->first();
-        if(!isset($project)){
+        $task = Task::where(['id' => $validated['task_id']])->first();
+        if(!isset($task)){
             throw new HttpResponseException($this->notFound());
-        }
-        if($project->owners->contains($user)){
-            throw new HttpResponseException($this->sendError('Deallocate Project Fail', ['error' => 'Can\'t deallocate owner']));
-        }
-        if(!$project->users->contains($user)){
-            throw new HttpResponseException($this->sendError('Deallocate Project Fail', ['error' => 'Already deallocate to this user']));
         }
         DB::beginTransaction();
         try{
-            $project->users()->detach($user);
-            $project->refresh();
+            $comment = Comment::create($validated);
+            $task->comments()->save($comment);
+            $user->comments()->save($comment);
+            $task->refresh();
             DB::commit();
-            return $this->sendResponse($project->users, 'Deallocate Project Success');
+            return $this->sendResponse($task->comments, 'Create Commnet Success');
         }catch(\Exception $e){
             DB::rollBack();
             return $this->sendError('Create Task Fail', $e->getMessage());

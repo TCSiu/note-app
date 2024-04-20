@@ -4,12 +4,12 @@ namespace App\Http\Requests\Project;
 
 use App\Http\Requests\BaseRequest;
 use App\Models\Project;
-use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class DeallocateProjectRequest extends BaseRequest
+class RestoreProjectRequest extends BaseRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -27,32 +27,31 @@ class DeallocateProjectRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'user_uuid' => 'required|integer|exists:users,uuid',
+            //
         ];
     }
 
     public function handle() {
-        $validated = $this->validated();
-        $project = Project::where(['uuid' => $this->route('project_uuid')])->first();
-        $user = User::where(['uuid' => $validated['user_uuid']])->first();
+        $project = Project::onlyTrashed()->where(['uuid' => $this->route('project_uuid')])->first();
+        $user = Auth::guard('api')->user();
         if(!isset($project)){
             throw new HttpResponseException($this->notFound());
         }
-        if($project->owners->contains($user)){
-            throw new HttpResponseException($this->sendError('Deallocate Project Fail', ['error' => 'Can\'t deallocate owner']));
+        if(date('Y-m-d', strtotime('+1 month')) < date('Y-m-d')){
+            throw new HttpResponseException($this->sendError('Restore Deleted Project Fail', ['error' => 'Project has been deleted after 1 month']));
         }
-        if(!$project->users->contains($user)){
-            throw new HttpResponseException($this->sendError('Deallocate Project Fail', ['error' => 'Already deallocate to this user']));
+        if(!$project->owners->contains($user)){
+            throw new HttpResponseException($this->sendError('Restore Deleted Project Fail', ['error' => 'You have no permission']));
         }
         DB::beginTransaction();
         try{
-            $project->users()->detach($user);
+            $project->restore();
             $project->refresh();
             DB::commit();
-            return $this->sendResponse($project->users, 'Deallocate Project Success');
+            return $this->sendResponse($project, 'Restore Deleted Project Success');
         }catch(\Exception $e){
             DB::rollBack();
-            return $this->sendError('Create Task Fail', $e->getMessage());
+            return $this->sendError('Fail', $e->getMessage());
         }
     }
 }

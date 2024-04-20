@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 class CommonFunction {
 
     public const MODEL_NAMESPACE = '\\App\\Models\\';
-    public static function compareWorkflow(array $current_workflow, array $new_workflow){
+    public static function compareWorkflow(array $current_workflow, array $new_workflow) {
         if(array_diff($current_workflow, $new_workflow) || array_diff($new_workflow, $current_workflow) || array_diff_key($current_workflow, $new_workflow) || array_diff_key($new_workflow, $current_workflow)){
             return true;
         }

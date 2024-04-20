@@ -27,7 +27,7 @@ class AllocateProjectRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required_without:email|integer|exists:users,id',
+            'user_uuid' => 'required_without:email|integer|exists:users,uuid',
             'email' => 'required_without:user_id|email|exists:users,email',
             'permission' => 'required|string',
         ];
@@ -43,8 +43,8 @@ class AllocateProjectRequest extends BaseRequest
 
         $project = Project::where(['uuid' => $this->route('project_uuid')])->first();
 
-        if(isset($validated['user_id'])){
-            $user = User::where(['id' => $validated['user_id']])->first();
+        if(isset($validated['user_uuid'])){
+            $user = User::where(['uuid' => $validated['user_uuid']])->first();
         } else if(isset($validated['email'])){
             $user = User::where(['email' => $validated['email']])->first();
         }

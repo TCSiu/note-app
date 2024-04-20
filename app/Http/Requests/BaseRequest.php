@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
 use \Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -45,5 +46,9 @@ class BaseRequest extends FormRequest
         $response = $this->sendError('Validation Fail', $errors->messages(), 422);
 
         throw new HttpResponseException($response);
+    }
+
+    protected function failedAuthorization() {
+        throw new HttpResponseException($this->sendError('Fail', ['error' => 'You have\'t no permission!'], 403));
     }
 }
